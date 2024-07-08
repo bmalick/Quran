@@ -10,36 +10,47 @@ class Parameters:
             if k not in ignore: setattr(self, k, v)
 
 class Base(Parameters):
-    def get_soup(self, url: str) -> BeautifulSoup:
+    @staticmethod
+    def get_soup(url: str) -> BeautifulSoup:
         try:
             response = requests.get(url=url)
         except requests.exceptions.RequestException as e:
             return None
         return BeautifulSoup(response.text, "html.parser")
     
-    def download_image(self, url: str, fname: str):
-        response = requests.get(url, headers=self.headers(url), stream=True)
-        response.raise_for_status()
-        if response.ok:
-            with open(fname, "wb") as f:
-                f.write(response.content)
-        self.convert2image(fname)
+    @staticmethod
+    def get_item(soup, selector):
+        item = soup.select_one(selector=selector)
+        if item is not None:
+            return item.get_text().strip()
+        return
     
-    def convert2image(self, fname: str) -> None:
-        if fname.endswith(".webp"):
-            img = Image.open(fname)
-            img.save(fname.replace(".webp", ".jpg"), 'JPEG')
-            os.remove(fname)
+    # @staticmethod
+    # def download_image(url: str, fname: str):
+    #     response = requests.get(url, headers=Base.headers(url), stream=True)
+    #     response.raise_for_status()
+    #     if response.ok:
+    #         with open(fname, "wb") as f:
+    #             f.write(response.content)
+    #     Base.convert2image(fname)
     
-    def headers(self, url):
-        return {
-            'Accept': 'image/png,image/svg+xml,image/*;q=0.8,video/*;q=0.8,*/*;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) '
-                          'Version/13.1.2 Safari/605.1.15',
-            'Host': urllib.parse.urlparse(url).netloc, 'Accept-Language': 'en-ca', 'Referer': "https://manganato.com",
-            'Connection': 'keep-alive'
-        }
+    # @staticmethod
+    # def convert2image(fname: str) -> None:
+    #     if fname.endswith(".webp"):
+    #         img = Image.open(fname)
+    #         img.save(fname.replace(".webp", ".jpg"), 'JPEG')
+    #         os.remove(fname)
+    
+    # @staticmethod
+    # def headers(url):
+    #     return {
+    #         'Accept': 'image/png,image/svg+xml,image/*;q=0.8,video/*;q=0.8,*/*;q=0.5',
+    #         'Accept-Encoding': 'gzip, deflate, br',
+    #         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) '
+    #                       'Version/13.1.2 Safari/605.1.15',
+    #         'Host': urllib.parse.urlparse(url).netloc, 'Accept-Language': 'en-ca', 'Referer': "https://manganato.com",
+    #         'Connection': 'keep-alive'
+    #     }
 
 class Timer:
     def __init__(self, message: str = "") -> None:
