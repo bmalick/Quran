@@ -12,7 +12,7 @@ class Surah(Base):
                              name=name,
                              translated_name=translated_name,
                              url=self._base_url+str(number),
-                             audio_url = self._audio_base_url % number)
+                             audio_url = self._audio_base_url % ('0' * (3-len(str(number))) + str(number)))
         self.get_surah_info()
         self.get_ayahs()
         self.get_full_surah()
@@ -37,19 +37,22 @@ class Surah(Base):
             note = note.get_text()
         else: note = ''
 
-        surah_info = {"note": note}
-        for title in soup.find_all(name="h2"):
+        info = {"note": note}
+        for title in soup.find_all(name=["h2", "h3"]):
             next_sibling = title.find_next_sibling()
             paragraphs = []
-            while next_sibling and next_sibling.name != 'h2':
-                if next_sibling.name == 'p':
+            while next_sibling and next_sibling.name not in ['h2', "h3"]:
+                if next_sibling.name == 'ol':
+                    for sub_item in next_sibling.find_all("li"):
+                        paragraphs.append(sub_item.text)
+                else:
                     paragraphs.append(next_sibling.text)
                 next_sibling = next_sibling.find_next_sibling()
-            surah_info[title.get_text().strip()] = "\n".join(paragraphs)
+            info[title.get_text().strip()] = "\n\n".join(paragraphs)
 
         self.save_parameters(num_ayahs=int(num_ayahs),
                              revelation_place=revelation_place,
-                             surah_info=surah_info)
+                             info=info)
     
     def get_ayahs(self):
         futures = []
@@ -73,12 +76,10 @@ class Surah(Base):
     def get_full_surah(self):
         full_surah = ""
         full_surah_translated = "\n".join([
-            ayah for _, ayah, _ in self.ayahs
-        ])
-        full_surah = "\n".join([
             ayah for _, _, ayah in self.ayahs
         ])
-        # for ayah_num, arab_ayah, translated_ayah in self.ayahs:
-        #     full_surah_translated += translated_ayah
+        full_surah = "\n".join([
+            ayah for _, ayah, _ in self.ayahs
+        ])
         self.save_parameters(full_surah=full_surah,
                              full_surah_translated=full_surah_translated)

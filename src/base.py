@@ -24,6 +24,12 @@ class Base(Parameters):
         if item is not None:
             return item.get_text().strip()
         return
+    @staticmethod
+    def get_items(soup, selector):
+        items = soup.select(selector=selector)
+        if len(items)>0:
+            return [item.get_text().strip() for item in items]
+        return
     
     # @staticmethod
     # def download_image(url: str, fname: str):
