@@ -31,6 +31,8 @@ class Base(Parameters):
             return [item.get_text().strip() for item in items]
         return
     
+    def create_dir(self, path: str): os.makedirs(path, exist_ok=True)
+    
     # @staticmethod
     # def download_image(url: str, fname: str):
     #     response = requests.get(url, headers=Base.headers(url), stream=True)
