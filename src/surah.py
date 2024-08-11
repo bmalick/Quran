@@ -1,5 +1,8 @@
 from src.base import Base
 import concurrent.futures
+from src.notion import NotionApiHandler
+
+# todo: add transsliteration: https://legacy.quran.com/1
 
 class Surah(Base):
     _base_url = "https://quran.com/"
@@ -16,8 +19,10 @@ class Surah(Base):
         self.get_surah_info()
         self.get_ayahs()
         self.get_full_surah()
+        # print(self)
             
-    def __str__(self): pass
+    def __str__(self):
+        return f"<{self.number} - {self.name}>"
 
     def get_surah_info(self) -> None:
         soup = self.get_soup(self._surah_base_url % self.number)
@@ -83,3 +88,31 @@ class Surah(Base):
         ])
         self.save_parameters(full_surah=full_surah,
                              full_surah_translated=full_surah_translated)
+
+    def create(self):
+        api_handler = NotionApiHandler()
+        api_handler.create_page_in_database(
+            database_id=api_handler.keys["database_id"],
+            data = {
+                "icon": {"url": "https://www.notion.so/icons/book_gray.svg"},
+                "properties": [
+                    {"name": "Name", "type": "page_title", "values": {"title": self.name}},
+                    {"name": "Number", "type": "number", "values": {"number": self.number}},
+                    {"name": "Url", "type": "url", "values": {"url": self.url}},
+                    {"name": "Audio", "type": "url", "values": {"url": self.audio_url}},
+                    {"name": "Total ayahs", "type": "number", "values": {"number": self.num_ayahs}},
+                    {"name": "Ayah", "type": "number", "values": {"number": 0}},
+                    {"name": "Surah info", "type": "url", "values": {"url": f"https://quran.com/surah/{self.number}/info"}},
+                ],
+                "children": [
+                    {"type": "embed", "values": {"url": self.audio_url}},
+                    {"type": "callout", "values": {
+                        "icon": "https://www.notion.so/icons/book_gray.svg",
+                        "text": self.full_surah_translated
+
+                    }},
+                ]
+            }
+            
+        )
+
