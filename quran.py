@@ -8,7 +8,7 @@ import concurrent.futures
 from src.surah import Surah
 
 def main(args):
-    surah = Surah(i).create()
+    surah = Surah(args.num).create()
 
 if __name__ =="__main__":
     parser = ArgumentParser()

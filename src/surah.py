@@ -19,7 +19,7 @@ class Surah(Base):
         self.get_surah_info()
         self.get_ayahs()
         self.get_full_surah()
-        # print(self)
+        print(self)
             
     def __str__(self):
         return f"<{self.number} - {self.name}>"
@@ -81,7 +81,7 @@ class Surah(Base):
     def get_full_surah(self):
         full_surah = ""
         full_surah_translated = "\n".join([
-            ayah for _, _, ayah in self.ayahs
+            f"{num}. {ayah}" for num, _, ayah in self.ayahs
         ])
         full_surah = "\n".join([
             ayah for _, ayah, _ in self.ayahs
@@ -103,12 +103,13 @@ class Surah(Base):
                     {"name": "Total ayahs", "type": "number", "values": {"number": self.num_ayahs}},
                     {"name": "Ayah", "type": "number", "values": {"number": 0}},
                     {"name": "Surah info", "type": "url", "values": {"url": f"https://quran.com/surah/{self.number}/info"}},
+                    {"name": "Transliteration", "type": "url", "values": {"url": f"https://legacy.quran.com/{self.number}"}},
                 ],
                 "children": [
                     {"type": "embed", "values": {"url": self.audio_url}},
                     {"type": "callout", "values": {
                         "icon": "https://www.notion.so/icons/book_gray.svg",
-                        "text": self.full_surah_translated
+                        "text": "", **api_handler.extend_rich_text(self.full_surah_translated)
 
                     }},
                 ]
