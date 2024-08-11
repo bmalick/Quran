@@ -5,7 +5,6 @@ from tqdm import tqdm
 import concurrent.futures
 
 # todo: quran command
-from src.notion import Notion
 from src.surah import Surah
 
 def main(args):
