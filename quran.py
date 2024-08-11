@@ -7,10 +7,8 @@ import concurrent.futures
 # todo: quran command
 from src.surah import Surah
 
-def main(args):
-
+def main():
     futures = []
-
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for i in tqdm(range(1,115), desc="Surah crawling"):
             surah = Surah(i)
@@ -19,7 +17,4 @@ def main(args):
             future.result()
 
 if __name__ =="__main__":
-    parser = ArgumentParser()
-    parser.add_argument("--num", "-n", required=True, type=int)
-    args = parser.parse_args()
-    main(args)
+    main()
